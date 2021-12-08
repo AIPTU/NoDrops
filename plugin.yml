@@ -1,0 +1,12 @@
+---
+name: NoDrops
+main: aiptu\nodrops\NoDrops
+src-namespace-prefix: aiptu\nodrops
+version: 1.0.0
+api: [4.0.0]
+author: AIPTU
+permissions:
+  nodrops.bypass:
+    default: op
+    description: Allows users to bypass drop.
+...
