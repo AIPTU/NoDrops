@@ -8,7 +8,7 @@ A PocketMine-MP plugin to prohibit players from dropping their items.
 
 - Permission bypass.
 - Supports `&` as formatting codes.
-- Custom item that can be dropped.
+- Custom item that can't be dropped.
 - Per world support.
 - Lightweight and open source ❤️
 
@@ -23,7 +23,7 @@ config-version: 1.0
 message: "&cYou can't drop your items here"
 
 items:
-  # List of items that can be dropped.
+  # List of items that can't be dropped.
   # If the item has meta, you can use the format "minecraft:id:meta".
   list:
     - "minecraft:oak_log"
