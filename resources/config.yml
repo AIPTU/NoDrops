@@ -1,8 +1,8 @@
 ---
 # Do not change this (Only for internal use)!
-config-version: 1
+config-version: 1.0
 
-# Message used when canceling a player's drop.
+# Message used when canceling a player dropping an item.
 # Use "§" or "&" to color the message.
 message: "&cYou can't drop your items here"
 
@@ -22,7 +22,7 @@ worlds:
   # Whitelist mode will only allow player's drop according to predefined world folder names and will cancel player's drop in all worlds.
   mode: "blacklist"
   # List of world folder names to blacklist/whitelist (depending on the mode set above).
-  # Set it to [] if you want to allow player's drop in all worlds.
+  # Leave it empty if you want to allow player's drop in all worlds.
   list:
     - "world"
 ...
