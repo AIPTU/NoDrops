@@ -45,13 +45,6 @@ worlds:
 
 ```
 
-# How to Install
-
-1. Download the plugin from [here](https://poggit.pmmp.io/ci/AIPTU/NoDrops/NoDrops).
-2. Put the `NoDrops.phar` file into the `plugins` folder.
-3. Restart the server.
-4. Done!
-
 # Upcoming Features
 
 - Currently none planned. You can contribute or suggest for new features.
