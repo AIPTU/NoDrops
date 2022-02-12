@@ -1,6 +1,5 @@
 # NoDrops
 
-[![](https://img.shields.io/discord/830063409000087612?color=7389D8&label=discord)](https://discord.com/invite/EggNF9hvGv)
 [![](https://poggit.pmmp.io/shield.state/NoDrops)](https://poggit.pmmp.io/p/NoDrops)
 [![](https://poggit.pmmp.io/shield.dl.total/NoDrops)](https://poggit.pmmp.io/p/NoDrops)
 
@@ -18,7 +17,7 @@ A PocketMine-MP plugin to prohibit players from dropping their items.
 ```yaml
 ---
 # Do not change this (Only for internal use)!
-config-version: 1.0
+config-version: 1.1
 
 # Message used when canceling a player dropping an item.
 # Use "§" or "&" to color the message.

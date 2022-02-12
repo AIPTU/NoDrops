@@ -42,7 +42,7 @@ use function trim;
 
 final class NoDrops extends PluginBase
 {
-	private const CONFIG_VERSION = 1.0;
+	private const CONFIG_VERSION = 1.1;
 
 	private const MODE_BLACKLIST = 0;
 	private const MODE_WHITELIST = 1;
