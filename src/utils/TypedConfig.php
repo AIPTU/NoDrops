@@ -26,11 +26,12 @@
 
 declare(strict_types=1);
 
-namespace aiptu\nodrops;
+namespace aiptu\nodrops\utils;
 
 use InvalidArgumentException;
 use pocketmine\utils\Config;
 use function is_array;
+use function is_bool;
 use function is_string;
 use function var_export;
 
@@ -38,6 +39,15 @@ final class TypedConfig
 {
 	public function __construct(private Config $config)
 	{
+	}
+
+	public function getBool(string $key, bool $default = true): bool
+	{
+		$value = $this->config->getNested($key, $default);
+		if (!is_bool($value)) {
+			throw new InvalidArgumentException("Invalid value for {$key}: " . self::printValue($value));
+		}
+		return $value;
 	}
 
 	public function getString(string $key, string $default = ''): string

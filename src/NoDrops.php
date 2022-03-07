@@ -28,10 +28,12 @@ declare(strict_types=1);
 
 namespace aiptu\nodrops;
 
+use aiptu\nodrops\utils\TypedConfig;
 use pocketmine\item\Item;
 use pocketmine\item\LegacyStringToItemParser;
 use pocketmine\item\LegacyStringToItemParserException;
 use pocketmine\item\StringToItemParser;
+use pocketmine\player\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\world\World;
 use function explode;
@@ -43,11 +45,6 @@ use function trim;
 final class NoDrops extends PluginBase
 {
 	private const CONFIG_VERSION = 1.1;
-
-	private const MODE_BLACKLIST = 0;
-	private const MODE_WHITELIST = 1;
-
-	private int $mode;
 
 	private TypedConfig $typedConfig;
 
@@ -76,13 +73,36 @@ final class NoDrops extends PluginBase
 		return $item;
 	}
 
-	public function checkWorld(World $world): bool
+	public function checkPermission(Player $player): bool
 	{
-		if ($this->mode === self::MODE_BLACKLIST) {
-			return !(in_array($world->getFolderName(), $this->getTypedConfig()->getStringList('worlds.list'), true));
+		if (!$this->getTypedConfig()->getBool('enable-permission')) {
+			return true;
 		}
 
-		return in_array($world->getFolderName(), $this->getTypedConfig()->getStringList('worlds.list'), true);
+		return $player->hasPermission('nodrops.bypass');
+	}
+
+	public function checkWorld(World $world): bool
+	{
+		$blacklist = $this->getTypedConfig()->getBool('enable-world-blacklist');
+		$whitelist = $this->getTypedConfig()->getBool('enable-world-whitelist');
+		$worldName = $world->getFolderName();
+
+		if ($blacklist === $whitelist) {
+			return true;
+		}
+
+		if ($blacklist) {
+			$disallowedWorlds = $this->getTypedConfig()->getStringList('blacklisted-worlds');
+			return !(in_array($worldName, $disallowedWorlds, true));
+		}
+
+		if ($whitelist) {
+			$allowedWorlds = $this->getTypedConfig()->getStringList('whitelisted-worlds');
+			return in_array($worldName, $allowedWorlds, true);
+		}
+
+		return false;
 	}
 
 	private function checkConfig(): void
@@ -100,14 +120,8 @@ final class NoDrops extends PluginBase
 
 		$this->typedConfig = new TypedConfig($this->getConfig());
 
-		foreach ($this->getTypedConfig()->getStringList('items.list') as $value) {
+		foreach ($this->getTypedConfig()->getStringList('items') as $value) {
 			$this->checkItem($value);
 		}
-
-		match ($this->getTypedConfig()->getString('worlds.mode', 'blacklist')) {
-			'blacklist' => $this->mode = self::MODE_BLACKLIST,
-			'whitelist' => $this->mode = self::MODE_WHITELIST,
-			default => throw new \InvalidArgumentException('Invalid mode selected, must be either "blacklist" or "whitelist"!'),
-		};
 	}
 }

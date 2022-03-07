@@ -52,19 +52,31 @@ final class EventHandler implements Listener
 		$player = $event->getPlayer();
 		$item = $event->getItem();
 
-		foreach ($this->getPlugin()->getTypedConfig()->getStringList('items.list') as $value) {
+		if (!$this->getPlugin()->checkPermission($player)) {
+			return;
+		}
+
+		if (!$this->getPlugin()->checkWorld($player->getWorld())) {
+			return;
+		}
+
+		if ($this->getPlugin()->getTypedConfig()->getBool('enable-all-items')) {
+			if ($this->getPlugin()->getTypedConfig()->getBool('enable-message')) {
+				$player->sendPopup(TextFormat::colorize($this->getPlugin()->getTypedConfig()->getString('message', "&cYou can't drop your items here")));
+			}
+
+			$event->cancel();
+			return;
+		}
+
+		foreach ($this->getPlugin()->getTypedConfig()->getStringList('items') as $value) {
 			$itemDrops = $this->getPlugin()->checkItem($value);
 
-			if ($item->equals($itemDrops)) {
-				if ($player->hasPermission('nodrops.bypass')) {
-					return;
+			if ($item->equals($itemDrops, true, false)) {
+				if ($this->getPlugin()->getTypedConfig()->getBool('enable-message')) {
+					$player->sendPopup(TextFormat::colorize($this->getPlugin()->getTypedConfig()->getString('message', "&cYou can't drop your items here")));
 				}
 
-				if (!$this->getPlugin()->checkWorld($player->getWorld())) {
-					return;
-				}
-
-				$player->sendPopup(TextFormat::colorize($this->getPlugin()->getTypedConfig()->getString('message', "&cYou can't drop your items here")));
 				$event->cancel();
 			}
 		}
