@@ -5,4 +5,7 @@ projects:
   NoDrops:
     path: ""
     icon: "icon.png"
+    libs:
+      - src: ifera-mc/UpdateNotifier/UpdateNotifier
+        version: ^3.0.0
 ...

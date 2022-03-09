@@ -28,12 +28,14 @@ declare(strict_types=1);
 
 namespace aiptu\nodrops;
 
+use JackMD\UpdateNotifier\UpdateNotifier;
 use pocketmine\item\Item;
 use pocketmine\item\LegacyStringToItemParser;
 use pocketmine\item\LegacyStringToItemParserException;
 use pocketmine\item\StringToItemParser;
 use pocketmine\plugin\PluginBase;
 use pocketmine\world\World;
+use function class_exists;
 use function explode;
 use function in_array;
 use function str_replace;
@@ -46,6 +48,13 @@ final class NoDrops extends PluginBase
 		ConfigManager::init($this);
 
 		$this->getServer()->getPluginManager()->registerEvents(new EventHandler($this), $this);
+
+		if (!class_exists(UpdateNotifier::class)) {
+			$this->getLogger()->error('UpdateNotifier virion not found. Download NoDrops at https://poggit.pmmp.io/p/NoDrops');
+			$this->getServer()->getPluginManager()->disablePlugin($this);
+			return;
+		}
+		UpdateNotifier::checkUpdate($this->getDescription()->getName(), $this->getDescription()->getVersion());
 	}
 
 	public function checkItem(string $string): Item
