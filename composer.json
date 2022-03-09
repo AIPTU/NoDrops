@@ -1,0 +1,25 @@
+{
+    "name": "aiptu/nodrops",
+    "description": "A PocketMine-MP plugin to prohibit players from dropping their items.",
+    "type": "project",
+    "require": {
+        "php": "^8.1",
+        "pocketmine/pocketmine-mp": "^4.2"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.4",
+        "phpstan/phpstan-strict-rules": "^1.1",
+        "phpstan/extension-installer": "^1.1"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Aiptu\\Test\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    }
+}
