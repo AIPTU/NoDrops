@@ -7,6 +7,7 @@ A PocketMine-MP plugin to prohibit players from dropping their items.
 
 # Features
 
+- Auto update checker.
 - Permission bypass.
 - World blacklist and whitelist support.
 - Option to enable or disable messages.
@@ -19,7 +20,7 @@ A PocketMine-MP plugin to prohibit players from dropping their items.
 ```yaml
 ---
 # Do not change this (Only for internal use)!
-config-version: 1.1
+config-version: 1.2
 
 # Set this to true if you want to use the blacklisted-worlds settings.
 # If both enable-world-blacklist and disable-world-blacklist are set to the same setting,
