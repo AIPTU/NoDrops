@@ -2,10 +2,6 @@
 # Do not change this (Only for internal use)!
 config-version: 1.1
 
-# If this is set to true, dropped items will only be allowed when the player has
-# permission "nodrops.bypass".
-enable-permission: false
-
 # Set this to true if you want to use the blacklisted-worlds settings.
 # If both enable-world-blacklist and disable-world-blacklist are set to the same setting,
 # dropped items will be enabled for all worlds.
@@ -36,7 +32,7 @@ message: "&cYou can't drop your items here"
 enable-all-items: false
 # List of items that can't be dropped.
 # If the item has meta, you can use the format "id:meta".
-items:
+list-items:
   - "oak_log"
   - "diamond_ore"
   - "apple"

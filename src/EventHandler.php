@@ -30,10 +30,13 @@ namespace aiptu\nodrops;
 
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerDropItemEvent;
-use pocketmine\utils\TextFormat;
+use pocketmine\player\Player;
+use function time;
 
 final class EventHandler implements Listener
 {
+	private array $cooldownMessage = [];
+
 	public function __construct(private NoDrops $plugin)
 	{
 	}
@@ -45,14 +48,28 @@ final class EventHandler implements Listener
 
 	public function onPlayerDropItem(PlayerDropItemEvent $event): void
 	{
-		if ($event->isCancelled()) {
-			return;
-		}
-
 		$player = $event->getPlayer();
 		$item = $event->getItem();
 
-		if (!$this->getPlugin()->checkPermission($player)) {
+		if (ConfigManager::isAllItemsEnable()) {
+			$this->check($player);
+
+			$event->cancel();
+			return;
+		}
+
+		foreach (ConfigManager::getListItems() as $itemDrops) {
+			if ($item->equals($itemDrops, true, false)) {
+				$this->check($player);
+
+				$event->cancel();
+			}
+		}
+	}
+
+	private function check(Player $player): void
+	{
+		if ($player->hasPermission('nodrops.bypass')) {
 			return;
 		}
 
@@ -60,25 +77,13 @@ final class EventHandler implements Listener
 			return;
 		}
 
-		if ($this->getPlugin()->getTypedConfig()->getBool('enable-all-items')) {
-			if ($this->getPlugin()->getTypedConfig()->getBool('enable-message')) {
-				$player->sendPopup(TextFormat::colorize($this->getPlugin()->getTypedConfig()->getString('message', "&cYou can't drop your items here")));
-			}
-
-			$event->cancel();
+		if (isset($this->cooldownMessage[$player->getName()]) && time() - 3 < $this->cooldownMessage[$player->getName()]) {
 			return;
 		}
+		$this->cooldownMessage[$player->getName()] = time();
 
-		foreach ($this->getPlugin()->getTypedConfig()->getStringList('items') as $value) {
-			$itemDrops = $this->getPlugin()->checkItem($value);
-
-			if ($item->equals($itemDrops, true, false)) {
-				if ($this->getPlugin()->getTypedConfig()->getBool('enable-message')) {
-					$player->sendPopup(TextFormat::colorize($this->getPlugin()->getTypedConfig()->getString('message', "&cYou can't drop your items here")));
-				}
-
-				$event->cancel();
-			}
+		if (ConfigManager::isMessageEnable()) {
+			$player->sendMessage(ConfigManager::getMessage());
 		}
 	}
 }
