@@ -15,14 +15,17 @@ namespace aiptu\nodrops;
 
 use InvalidArgumentException;
 use pocketmine\item\Item;
+use pocketmine\plugin\DisablePluginException;
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use function array_filter;
 use function array_map;
 use function is_array;
 use function is_bool;
 use function is_string;
-use function rename;
 use function var_export;
 
 final class ConfigManager {
@@ -30,66 +33,69 @@ final class ConfigManager {
 
 	private static Config $config;
 
-	private static bool $enableWorldBlacklist;
+	private static bool $worldBlacklistEnabled;
 	private static array $blacklistedWorlds;
-	private static bool $enableWorldWhitelist;
+	private static bool $worldWhitelistEnabled;
 	private static array $whitelistedWorlds;
-	private static bool $enableMessage;
+	private static bool $messageEnabled;
 	private static string $message;
-	private static bool $enableAllItems;
+	private static bool $allItemsEnabled;
 	private static array $listItems;
 
 	public static function init(NoDrops $plugin) : void {
-		$plugin->saveDefaultConfig();
+		$config = $plugin->getConfig();
 
-		if (!$plugin->getConfig()->exists('config-version') || ($plugin->getConfig()->get('config-version', self::CONFIG_VERSION) !== self::CONFIG_VERSION)) {
-			$plugin->getLogger()->warning('An outdated config was provided attempting to generate a new one...');
-			if (!rename($plugin->getDataFolder() . 'config.yml', $plugin->getDataFolder() . 'config.old.yml')) {
-				$plugin->getLogger()->critical('An unknown error occurred while attempting to generate the new config');
-				$plugin->getServer()->getPluginManager()->disablePlugin($plugin);
+		if (!$config->exists('config-version') || $config->get('config-version') !== self::CONFIG_VERSION) {
+			$plugin->getLogger()->warning('An outdated config was provided. Attempting to generate a new one...');
+			$filesystem = new Filesystem();
+
+			try {
+				$filesystem->rename(Path::join($plugin->getDataFolder(), 'config.yml'), Path::join($plugin->getDataFolder(), 'config.old.yml'));
+				$plugin->reloadConfig();
+			} catch (IOException $e) {
+				$plugin->getLogger()->critical('Failed to rename old config file: ' . $e->getMessage());
+				throw new DisablePluginException();
 			}
-
-			$plugin->reloadConfig();
 		}
 
 		self::$config = $plugin->getConfig();
 
-		self::$enableWorldBlacklist = self::getBool('enable-world-blacklist', false);
+		self::$worldBlacklistEnabled = self::getBool('enable-world-blacklist', false);
 		self::$blacklistedWorlds = self::getStringList('blacklisted-worlds', []);
-		self::$enableWorldWhitelist = self::getBool('enable-world-whitelist', false);
+		self::$worldWhitelistEnabled = self::getBool('enable-world-whitelist', false);
 		self::$whitelistedWorlds = self::getStringList('whitelisted-worlds', []);
-		self::$enableMessage = self::getBool('enable-message', false);
+		self::$messageEnabled = self::getBool('enable-message', false);
 		self::$message = self::getString('message', "&cYou can't drop your items here");
-		self::$enableAllItems = self::getBool('enable-all-items', false);
+		self::$allItemsEnabled = self::getBool('enable-all-items', false);
 		self::$listItems = array_map(static fn (string $item) : Item => $plugin->checkItem($item), self::getStringList('list-items', []));
 	}
 
-	public static function isWorldBlacklistEnable() : bool {
-		return self::$enableWorldBlacklist;
+	public static function isWorldBlacklistEnabled() : bool {
+		return self::$worldBlacklistEnabled;
 	}
 
 	public static function getBlacklistedWorlds() : array {
 		return self::$blacklistedWorlds;
 	}
 
-	public static function isWorldWhitelistEnable() : bool {
-		return self::$enableWorldWhitelist;
+	public static function isWorldWhitelistEnabled() : bool {
+		return self::$worldWhitelistEnabled;
 	}
 
 	public static function getWhitelistedWorlds() : array {
 		return self::$whitelistedWorlds;
 	}
 
-	public static function isMessageEnable() : bool {
-		return self::$enableMessage;
+	public static function isMessageEnabled() : bool {
+		return self::$messageEnabled;
 	}
 
 	public static function getMessage() : string {
 		return TextFormat::colorize(self::$message);
 	}
 
-	public static function isAllItemsEnable() : bool {
-		return self::$enableAllItems;
+	public static function isAllItemsEnabled() : bool {
+		return self::$allItemsEnabled;
 	}
 
 	public static function getListItems() : array {

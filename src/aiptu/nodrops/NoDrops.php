@@ -13,22 +13,24 @@ declare(strict_types=1);
 
 namespace aiptu\nodrops;
 
+use InvalidArgumentException;
 use JackMD\UpdateNotifier\UpdateNotifier;
 use pocketmine\item\Item;
-use pocketmine\item\LegacyStringToItemParser;
-use pocketmine\item\LegacyStringToItemParserException;
 use pocketmine\item\StringToItemParser;
+use pocketmine\plugin\DisablePluginException;
 use pocketmine\plugin\PluginBase;
 use pocketmine\world\World;
 use function class_exists;
-use function explode;
 use function in_array;
-use function str_replace;
-use function trim;
 
 final class NoDrops extends PluginBase {
 	public function onEnable() : void {
-		ConfigManager::init($this);
+		try {
+			ConfigManager::init($this);
+		} catch (\Throwable $e) {
+			$this->getLogger()->critical('An error occurred while attempting to load the config: ' . $e->getMessage());
+			throw new DisablePluginException();
+		}
 
 		$this->getServer()->getPluginManager()->registerEvents(new EventHandler($this), $this);
 
@@ -41,21 +43,18 @@ final class NoDrops extends PluginBase {
 		UpdateNotifier::checkUpdate($this->getDescription()->getName(), $this->getDescription()->getVersion());
 	}
 
-	public function checkItem(string $string) : Item {
-		try {
-			$item = LegacyStringToItemParser::getInstance()->parse($string);
-		} catch (LegacyStringToItemParserException $e) {
-			if (($item = StringToItemParser::getInstance()->parse(explode(':', str_replace([' ', 'minecraft:'], ['_', ''], trim($string)))[0])) === null) {
-				throw $e;
-			}
+	public function checkItem(string $itemString) : Item {
+		$parsedItem = StringToItemParser::getInstance()->parse($itemString);
+		if (!$parsedItem instanceof Item) {
+			throw new InvalidArgumentException("Invalid item '{$itemString}'");
 		}
 
-		return $item;
+		return $parsedItem;
 	}
 
-	public function checkWorld(World $world) : bool {
-		$blacklist = ConfigManager::isWorldBlacklistEnable();
-		$whitelist = ConfigManager::isWorldWhitelistEnable();
+	public function isWorldEnabled(World $world) : bool {
+		$blacklist = ConfigManager::isWorldBlacklistEnabled();
+		$whitelist = ConfigManager::isWorldWhitelistEnabled();
 		$worldName = $world->getFolderName();
 
 		if ($blacklist === $whitelist) {
