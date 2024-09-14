@@ -1,11 +1,9 @@
----
 name: NoDrops
 main: aiptu\nodrops\NoDrops
 version: 1.2.0
-api: [4.0.0]
+api: [5.0.0]
 author: AIPTU
 permissions:
   nodrops.bypass:
     default: op
     description: Allows users to bypass drop.
-...
