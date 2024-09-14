@@ -1,6 +1,6 @@
 name: NoDrops
 main: aiptu\nodrops\NoDrops
-version: 1.2.0
+version: 1.3.0
 api: [5.0.0]
 author: AIPTU
 permissions:
